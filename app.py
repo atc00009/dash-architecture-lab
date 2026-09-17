@@ -11,8 +11,8 @@ st.set_page_config(
 st.title("⚡ Dash Architecture, Flow, Multi-Library Lab & EcoMove Cockpit")
 st.markdown(
     "Complete 7-tab interactive lab covering HTML vs Dash, hidden JS/React,"
-    " Pandas/Plotly, JSON wire loop, multi-library matrix, EcoMove interactive"
-    " design challenge, complete managerial justification guide, and"
+    " Pandas/Plotly, JSON wire loop, multi-library line-by-line deep dive,"
+    " EcoMove interactive design challenge, managerial justification guide, and"
     " 15-question mastery quiz."
 )
 
@@ -155,15 +155,109 @@ with tab4:
 7. **JS Display**: Browser's hidden React/Plotly-JS engine reads JSON and repaints graph pixels inside `dcc.Graph(id="chart")`. **No full page refresh!**
 """)
 
-# --- TAB 5: MULTI-LIBRARY DEEP DIVE ---
+# --- TAB 5: MULTI-LIBRARY DEEP DIVE (MATRIX + LINE-BY-LINE MEANINGS) ---
 with tab5:
   st.header("🏛️ Architecture Matrix: Dash, Streamlit, Bokeh, Panel")
   st.markdown("""
 | Feature / Concept | **Dash** | **Streamlit** | **Bokeh** | **Panel** |
 | :--- | :--- | :--- | :--- | :--- |
-| **Required Imports** | `dash`, `html`, `dcc`, `Input/Output` | `streamlit as st` | `bokeh.plotting.figure`, `models.*` | `panel as pn` |
-| **App Creation** | `app = Dash(__name__)`, `app.layout`, `app.run()` | Top-to-bottom script execution | Create `figure()`, add glyphs, root doc | Build UI container `pn.Column/Row()` |
-| **Reactivity Model** | Explicit `@app.callback` matching component IDs | Whole script reruns top-to-bottom | `slider.on_change('value', fn)` | Functional binding `pn.bind(func, widget)` |
+| **Required Imports** | `dash`, `dash.html`, `dash.dcc`, `dash.Input/Output` | `streamlit as st` | `bokeh.plotting.figure`, `bokeh.models.*` | `panel as pn` |
+| **App Creation** | `app = Dash(__name__)`, `app.layout = html.Div([...])`, `app.run()` | Top-to-bottom script execution (`st.title()`, `st.selectbox()`) | Create `p = figure()`, add glyphs `p.line()`, root doc | Build UI container `pn.Column/Row()`, embed widgets/panes |
+| **Reactivity Model** | Explicit decorator `@app.callback(Output, Input)` matching component IDs | **No callbacks!** Entire script reruns top-to-bottom on widget change | Event listener subscription (`slider.on_change('value', fn)`) or `CustomJS` | Functional binding (`pn.bind(func, widget)`) or decorator (`@pn.depends`) |
+""")
+
+  st.divider()
+  st.subheader("Code Snippets + Plain-English Line Meanings")
+
+  col_d, col_s = st.columns(2)
+  with col_d:
+    st.markdown("### 1. Dash")
+    st.code(
+        """
+app.layout = html.Div([dcc.Dropdown(id='s'), dcc.Graph(id='c')])
+@app.callback(Output('c', 'figure'), Input('s', 'value'))
+def update(val): return px.line(...)
+app.run()
+""",
+        language="python",
+    )
+    st.markdown("""
+    **Line-by-Line Meaning:**
+    * `app.layout = ...`: Build HTML container + dropdown + graph slot.
+    * `@app.callback(Output('c', 'figure'), Input('s', 'value'))`: Listen to dropdown id `'s'`, feed choice into `update()`, send output to graph id `'c'`.
+    * `def update(val): ...`: Python function that computes new figure.
+    * `app.run()`: Start local server port 8050.
+    """)
+
+  with col_s:
+    st.markdown("### 2. Streamlit")
+    st.code(
+        """
+val = st.selectbox('Choose', ['AAPL', 'MSFT'])
+fig = px.line(...)
+st.plotly_chart(fig)
+# Changing dropdown reruns whole script from line 1
+""",
+        language="python",
+    )
+    st.markdown("""
+    **Line-by-Line Meaning:**
+    * `val = st.selectbox(...)`: Create dropdown UI and store user choice in `val`.
+    * `fig = px.line(...)`: Create Plotly figure using current `val`.
+    * `st.plotly_chart(fig)`: Render figure on page.
+    * *Rerun rule*: Changing selection restarts Python script from **Line 1**. No separate callback code needed!
+    """)
+
+  st.divider()
+
+  col_b, col_p = st.columns(2)
+  with col_b:
+    st.markdown("### 3. Bokeh")
+    st.code(
+        """
+p = figure()
+slider = Slider(start=1, end=10, value=5)
+slider.on_change('value', lambda attr, old, new: update_glyph())
+curdoc().add_root(column(slider, p))
+""",
+        language="python",
+    )
+    st.markdown("""
+    **Line-by-Line Meaning:**
+    * `p = figure()`: Give me an empty graph canvas.
+    * `slider = Slider(...)`: Put an interactive slider widget.
+    * `slider.on_change('value', lambda ...)`: Watch slider value; on change, run single-line lambda passing `(attr, old, new)` to `update_glyph()`.
+    * `curdoc().add_root(column(slider, p))`: Put slider + graph vertically onto current page document.
+    * *Glyph*: Visual mark (circle, line) representing data on chart.
+    """)
+
+  with col_p:
+    st.markdown("### 4. Panel")
+    st.code(
+        """
+select = pn.widgets.Select(options=['AAPL', 'MSFT'])
+def plot(s): return px.line(...)
+dashboard = pn.Column(select, pn.bind(plot, select))
+dashboard.servable()
+""",
+        language="python",
+    )
+    st.markdown("""
+    **Line-by-Line Meaning:**
+    * `select = pn.widgets.Select(...)`: Create a dropdown widget.
+    * `def plot(s): return px.line(...)`: Function taking selected stock string `s`.
+    * `pn.bind(plot, select)`: Connect dropdown `select` output directly into `plot()` function.
+    * `pn.Column(select, ...)`: Arrange select box and bound plot vertically.
+    * `.servable()`: Make app deployable/displayable as a web service.
+    """)
+
+  st.divider()
+  st.subheader("⚡ Quick Pattern Memory Guide")
+  st.markdown("""
+- **Dash**: `Dropdown → @app.callback → function → update graph`
+- **Panel**: `Select → pn.bind() → function → update graph`
+- **Bokeh**: `Slider → on_change() → function → update chart`
+- **Streamlit**: `Widget changes → whole Python script reruns → new output`
 """)
 
 # --- TAB 6: ECOMOVE INTERACTIVE CHALLENGE, BOARD & JUSTIFICATIONS ---
@@ -171,10 +265,7 @@ with tab6:
   st.header(
       "🎯 EcoMove Assessment Challenge, Live Dashboard & Managerial Justifications"
   )
-  st.markdown(
-      "Target Audience: **Senior Managers at EcoMove City Transport"
-      " Authority** [cite: 3]."
-  )
+  st.markdown("Target Audience: **Senior Managers at EcoMove**.")
 
   if "unlocked_ecomove" not in st.session_state:
     st.session_state["unlocked_ecomove"] = False
@@ -214,7 +305,6 @@ with tab6:
         " Managerial Justification Framework:"
     )
 
-    # Interactive Global Filter matching Requirement 6
     selected_city = st.selectbox(
         "Filter Dashboard by City:",
         options=["All Cities"] + list(df["City"].unique()),
@@ -225,7 +315,6 @@ with tab6:
         else df[df["City"] == selected_city]
     )
 
-    # Top-line KPI summary row
     c1, c2, c3, c4, c5 = st.columns(5)
     net_m = dff["Ticket_Revenue"].sum() - dff["Operating_Cost"].sum()
     c1.metric("Net Margin", f"€{net_m:,.0f}")
