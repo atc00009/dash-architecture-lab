@@ -4,19 +4,20 @@ st.set_page_config(
     page_title="Dash Master Flow & Lab", page_icon="⚡", layout="wide"
 )
 
-st.title("⚡ Dash Complete Architecture & Flow Learning Lab")
+st.title("⚡ Dash Architecture, Flow & Multi-Library Matrix")
 st.markdown(
     "Super simple guide connecting HTML vs. Dash, UI components, hidden"
-    " React/JS, JSON wire carrier, Pandas/Plotly, complete click workflow, and"
-    " a 15-question mastery quiz."
+    " React/JS, JSON wire carrier, Pandas/Plotly, full library comparison,"
+    " complete workflow, and 15-question mastery quiz."
 )
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "1. 🧩 HTML vs Dash & UI Components",
     "2. 📦 Hidden JS & Server (`app.run`)",
     "3. 🐼 Pandas & 📈 Plotly Roles",
     "4. 🔄 Complete Workflow & JSON Wire",
-    "📝 5. 15-Question Master Quiz",
+    "5. 🏛️ Dash vs St vs Bokeh vs Panel",
+    "📝 6. 15-Question Master Quiz",
 ])
 
 # --- TAB 1: HTML vs DASH & COMPONENTS ---
@@ -145,8 +146,75 @@ def update_chart(stock):
       language="python",
   )
 
-# --- TAB 5: 15-QUESTION QUIZ ---
+# --- TAB 5: DASH VS STREAMLIT VS BOKEH VS PANEL MATRIX ---
 with tab5:
+  st.header("🏛️ Architecture Comparison: Dash, Streamlit, Bokeh, Panel")
+  st.write(
+      "Detailed breakdown of **Required Components**, **App Creation**, and"
+      " **Callback / Reactivity** model for each tool:"
+  )
+
+  st.markdown("""
+| Feature / Concept | **Dash** | **Streamlit** | **Bokeh** | **Panel** |
+| :--- | :--- | :--- | :--- | :--- |
+| **Required Components / Imports** | `dash`, `dash.html`, `dash.dcc`, `dash.Input/Output` | `streamlit as st` | `bokeh.plotting.figure`, `bokeh.models.*` | `panel as pn`, plotting panes |
+| **How Creation is Done** | `app = Dash(__name__)`, assign `app.layout = html.Div([...])`, run via `app.run()` | Top-to-bottom script execution (`st.title()`, `st.selectbox()`) | Create `p = figure()`, add glyphs `p.line()`, display with `show()` or `curdoc()` | Build UI container `pn.Column/Row()`, embed widgets/panes |
+| **Callback / Reactivity Model** | Explicit decorator `@app.callback(Output, Input)` tracking component IDs | **No callbacks!** Entire script reruns top-to-bottom on widget change | Event listener subscription (`slider.on_change('value', fn)`) or `CustomJS` | Functional binding (`pn.bind(func, widget)`) or decorator (`@pn.depends`) |
+""")
+
+  st.divider()
+  st.subheader("Quick Snippet Comparison (Input → Chart Update)")
+
+  col_d, col_s = st.columns(2)
+  with col_d:
+    st.markdown("**Dash (ID-Targeted Event Loop)**")
+    st.code(
+        """
+app.layout = html.Div([dcc.Dropdown(id='s'), dcc.Graph(id='c')])
+@app.callback(Output('c', 'figure'), Input('s', 'value'))
+def update(val): return px.line(...)
+app.run()
+""",
+        language="python",
+    )
+  with col_s:
+    st.markdown("**Streamlit (Top-to-Bottom Rerun)**")
+    st.code(
+        """
+val = st.selectbox('Choose', ['AAPL', 'MSFT'])
+fig = px.line(...)
+st.plotly_chart(fig)
+# Changing dropdown reruns whole script from line 1
+""",
+        language="python",
+    )
+
+  col_b, col_p = st.columns(2)
+  with col_b:
+    st.markdown("**Bokeh (Plot-First + Observer)**")
+    st.code(
+        """
+p = figure()
+slider = Slider(...)
+slider.on_change('value', lambda attr, old, new: update_glyph())
+curdoc().add_root(column(slider, p))
+""",
+        language="python",
+    )
+  with col_p:
+    st.markdown("**Panel (Widget-to-Func Binding)**")
+    st.code(
+        """
+select = pn.widgets.Select(options=['AAPL', 'MSFT'])
+def plot(s): return px.line(...)
+dashboard = pn.Column(select, pn.bind(plot, select))
+dashboard.servable()
+""",
+        language="python",
+    )
+
+# --- TAB 6: 15-QUESTION QUIZ ---
+with tab6:
   st.header("📝 15-Question Mastery Check")
   with st.form("master_15q"):
     q1 = st.radio(
