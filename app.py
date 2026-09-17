@@ -8,16 +8,18 @@ st.title("⚡ Dash Complete Architecture, Flow & Multi-Library Lab")
 st.markdown(
     "Super simple guide connecting HTML vs. Dash, UI components, hidden"
     " React/JS, JSON wire carrier, Pandas/Plotly, full library line-by-line"
-    " deep dive, complete workflow, and 15-question mastery quiz."
+    " deep dive, complete workflow, EcoMove assessment specs, and 15-question"
+    " mastery quiz."
 )
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "1. 🧩 HTML vs Dash & UI Components",
     "2. 📦 Hidden JS & Server (`app.run`)",
     "3. 🐼 Pandas & 📈 Plotly Roles",
     "4. 🔄 Complete Workflow & JSON Wire",
     "5. 🏛️ Dash vs St vs Bokeh vs Panel (Deep Dive)",
-    "📝 6. 15-Question Master Quiz",
+    "6. 🎯 EcoMove Assessment Dashboard & KPIs",
+    "📝 7. 15-Question Master Quiz",
 ])
 
 # --- TAB 1: HTML vs DASH & COMPONENTS ---
@@ -251,8 +253,52 @@ dashboard.servable()
 - **Streamlit**: `Widget changes → whole Python script reruns → new output`
 """)
 
-# --- TAB 6: 15-QUESTION QUIZ ---
+# --- TAB 6: ECOMOVE ASSESSMENT DASHBOARD & KPI SPEC ---
 with tab6:
+  st.header("🎯 EcoMove Assessment Requirements ([5442] Brief)")
+  st.markdown(
+      "Target Audience: **Senior Managers at EcoMove City Transport"
+      " Authority** [cite: 3]."
+  )
+
+  col_a, col_b = st.columns(2)
+  with col_a:
+    st.subheader("✅ 6 Required Visual Archetypes")
+    st.markdown("""
+1. 📈 **Time-series**: Passenger/trip demand trends over time [cite: 3].
+2. 📊 **Comparison chart**: Contrast mode/city ticket revenue [cite: 3].
+3. 📍 **Relationship scatter**: Delay minutes vs. customer rating [cite: 3].
+4. 📦 **Distribution boxplot**: Delay variance distribution by mode [cite: 3].
+5. ⚡ **Performance indicator**: Mean revenue/delay metrics per city [cite: 3].
+6. 🎛️ **Combined multi-view + filter**: Interactive city selector updating group views [cite: 3].
+""")
+  with col_b:
+    st.subheader("🏛️ 5 Decision Pillars Addressed")
+    st.markdown("""
+| Pillar | Question Solved | Key Metric |
+| :--- | :--- | :--- |
+| **Route Planning** | Over/under-utilized lines? | Load factor (pax/trips) |
+| **Service Reliability** | Delay hot-spots? | Mean delay & On-time % |
+| **Sustainability** | Abatement targets met? | Total CO2 saved |
+| **Accessibility** | Equity/station friction? | Complaint volume |
+| **Investment** | Cash-cow vs deficit? | Net margin (Rev - Cost) |
+""")
+
+  st.divider()
+  st.subheader("Executive KPI Formula Reference")
+  st.code(
+      """
+Net_Margin = sum(Ticket_Revenue) - sum(Operating_Cost)
+Cost_Ratio = sum(Operating_Cost) / sum(Ticket_Revenue)
+On_Time_SLA = mean(On_time_percentage)
+CO2_Abatement = sum(CO2_saved)
+Access_Friction = sum(Accessibility_complaints)
+""",
+      language="python",
+  )
+
+# --- TAB 7: 15-QUESTION QUIZ ---
+with tab7:
   st.header("📝 15-Question Mastery Check")
   with st.form("master_15q"):
     q1 = st.radio(
