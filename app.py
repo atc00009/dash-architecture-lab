@@ -4,11 +4,11 @@ st.set_page_config(
     page_title="Dash Master Flow & Lab", page_icon="⚡", layout="wide"
 )
 
-st.title("⚡ Dash Architecture, Flow & Multi-Library Matrix")
+st.title("⚡ Dash Complete Architecture, Flow & Multi-Library Lab")
 st.markdown(
     "Super simple guide connecting HTML vs. Dash, UI components, hidden"
-    " React/JS, JSON wire carrier, Pandas/Plotly, full library comparison,"
-    " complete workflow, and 15-question mastery quiz."
+    " React/JS, JSON wire carrier, Pandas/Plotly, full library line-by-line"
+    " deep dive, complete workflow, and 15-question mastery quiz."
 )
 
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
@@ -16,7 +16,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "2. 📦 Hidden JS & Server (`app.run`)",
     "3. 🐼 Pandas & 📈 Plotly Roles",
     "4. 🔄 Complete Workflow & JSON Wire",
-    "5. 🏛️ Dash vs St vs Bokeh vs Panel",
+    "5. 🏛️ Dash vs St vs Bokeh vs Panel (Deep Dive)",
     "📝 6. 15-Question Master Quiz",
 ])
 
@@ -146,28 +146,23 @@ def update_chart(stock):
       language="python",
   )
 
-# --- TAB 5: DASH VS STREAMLIT VS BOKEH VS PANEL MATRIX ---
+# --- TAB 5: MULTI-LIBRARY DEEP DIVE (WITH LINE-BY-LINE MEANINGS) ---
 with tab5:
-  st.header("🏛️ Architecture Comparison: Dash, Streamlit, Bokeh, Panel")
-  st.write(
-      "Detailed breakdown of **Required Components**, **App Creation**, and"
-      " **Callback / Reactivity** model for each tool:"
-  )
-
+  st.header("🏛️ Architecture Matrix: Dash, Streamlit, Bokeh, Panel")
   st.markdown("""
 | Feature / Concept | **Dash** | **Streamlit** | **Bokeh** | **Panel** |
 | :--- | :--- | :--- | :--- | :--- |
-| **Required Components / Imports** | `dash`, `dash.html`, `dash.dcc`, `dash.Input/Output` | `streamlit as st` | `bokeh.plotting.figure`, `bokeh.models.*` | `panel as pn`, plotting panes |
-| **How Creation is Done** | `app = Dash(__name__)`, assign `app.layout = html.Div([...])`, run via `app.run()` | Top-to-bottom script execution (`st.title()`, `st.selectbox()`) | Create `p = figure()`, add glyphs `p.line()`, display with `show()` or `curdoc()` | Build UI container `pn.Column/Row()`, embed widgets/panes |
-| **Callback / Reactivity Model** | Explicit decorator `@app.callback(Output, Input)` tracking component IDs | **No callbacks!** Entire script reruns top-to-bottom on widget change | Event listener subscription (`slider.on_change('value', fn)`) or `CustomJS` | Functional binding (`pn.bind(func, widget)`) or decorator (`@pn.depends`) |
+| **Required Imports** | `dash`, `dash.html`, `dash.dcc`, `dash.Input/Output` | `streamlit as st` | `bokeh.plotting.figure`, `bokeh.models.*` | `panel as pn` |
+| **App Creation** | `app = Dash(__name__)`, `app.layout = html.Div([...])`, `app.run()` | Top-to-bottom script execution (`st.title()`, `st.selectbox()`) | Create `p = figure()`, add glyphs `p.line()`, root doc | Build UI container `pn.Column/Row()`, embed widgets/panes |
+| **Reactivity Model** | Explicit decorator `@app.callback(Output, Input)` matching component IDs | **No callbacks!** Entire script reruns top-to-bottom on widget change | Event listener subscription (`slider.on_change('value', fn)`) or `CustomJS` | Functional binding (`pn.bind(func, widget)`) or decorator (`@pn.depends`) |
 """)
 
   st.divider()
-  st.subheader("Quick Snippet Comparison (Input → Chart Update)")
+  st.subheader("Code Snippets + Plain-English Line Meanings")
 
   col_d, col_s = st.columns(2)
   with col_d:
-    st.markdown("**Dash (ID-Targeted Event Loop)**")
+    st.markdown("### 1. Dash")
     st.code(
         """
 app.layout = html.Div([dcc.Dropdown(id='s'), dcc.Graph(id='c')])
@@ -177,8 +172,16 @@ app.run()
 """,
         language="python",
     )
+    st.markdown("""
+    **Line-by-Line Meaning:**
+    * `app.layout = ...`: Build HTML container + dropdown + graph slot.
+    * `@app.callback(Output('c', 'figure'), Input('s', 'value'))`: Listen to dropdown id `'s'`, feed choice into `update()`, send output to graph id `'c'`.
+    * `def update(val): ...`: Python function that computes new figure.
+    * `app.run()`: Start local server port 8050.
+    """)
+
   with col_s:
-    st.markdown("**Streamlit (Top-to-Bottom Rerun)**")
+    st.markdown("### 2. Streamlit")
     st.code(
         """
 val = st.selectbox('Choose', ['AAPL', 'MSFT'])
@@ -188,21 +191,39 @@ st.plotly_chart(fig)
 """,
         language="python",
     )
+    st.markdown("""
+    **Line-by-Line Meaning:**
+    * `val = st.selectbox(...)`: Create dropdown UI and store user choice in `val`.
+    * `fig = px.line(...)`: Create Plotly figure using current `val`.
+    * `st.plotly_chart(fig)`: Render figure on page.
+    * *Rerun rule*: Changing selection restarts Python script from **Line 1**. No separate callback code needed!
+    """)
+
+  st.divider()
 
   col_b, col_p = st.columns(2)
   with col_b:
-    st.markdown("**Bokeh (Plot-First + Observer)**")
+    st.markdown("### 3. Bokeh")
     st.code(
         """
 p = figure()
-slider = Slider(...)
+slider = Slider(start=1, end=10, value=5)
 slider.on_change('value', lambda attr, old, new: update_glyph())
 curdoc().add_root(column(slider, p))
 """,
         language="python",
     )
+    st.markdown("""
+    **Line-by-Line Meaning:**
+    * `p = figure()`: Give me an empty graph canvas.
+    * `slider = Slider(...)`: Put an interactive slider widget.
+    * `slider.on_change('value', lambda ...)`: Watch slider value; on change, run single-line lambda passing `(attr, old, new)` to `update_glyph()`.
+    * `curdoc().add_root(column(slider, p))`: Put slider + graph vertically onto current page document.
+    * *Glyph*: Visual mark (circle, line) representing data on chart.
+    """)
+
   with col_p:
-    st.markdown("**Panel (Widget-to-Func Binding)**")
+    st.markdown("### 4. Panel")
     st.code(
         """
 select = pn.widgets.Select(options=['AAPL', 'MSFT'])
@@ -212,6 +233,23 @@ dashboard.servable()
 """,
         language="python",
     )
+    st.markdown("""
+    **Line-by-Line Meaning:**
+    * `select = pn.widgets.Select(...)`: Create a dropdown widget.
+    * `def plot(s): return px.line(...)`: Function taking selected stock string `s`.
+    * `pn.bind(plot, select)`: Connect dropdown `select` output directly into `plot()` function.
+    * `pn.Column(select, ...)`: Arrange select box and bound plot vertically.
+    * `.servable()`: Make app deployable/displayable as a web service.
+    """)
+
+  st.divider()
+  st.subheader("⚡ Quick Pattern Memory Guide")
+  st.markdown("""
+- **Dash**: `Dropdown → @app.callback → function → update graph`
+- **Panel**: `Select → pn.bind() → function → update graph`
+- **Bokeh**: `Slider → on_change() → function → update chart`
+- **Streamlit**: `Widget changes → whole Python script reruns → new output`
+""")
 
 # --- TAB 6: 15-QUESTION QUIZ ---
 with tab6:
