@@ -12,7 +12,8 @@ st.title("⚡ Dash Architecture, Flow, Multi-Library Lab & EcoMove Cockpit")
 st.markdown(
     "Complete 7-tab interactive lab covering HTML vs Dash, hidden JS/React,"
     " Pandas/Plotly, JSON wire loop, multi-library matrix, EcoMove interactive"
-    " design challenge, and 15-question mastery quiz."
+    " design challenge, complete managerial justification guide, and"
+    " 15-question mastery quiz."
 )
 
 
@@ -25,7 +26,7 @@ def load_ecomove_data():
       return pd.read_excel(filename)
     except Exception:
       pass
-  # Fallback synthetic frame if excel not in root dir
+  # Fallback synthetic frame if excel not in root dir matching exact brief schema
   np.random.seed(42)
   dates = pd.date_range("2026-01-01", periods=60, freq="D")
   cities = ["Berlin", "Paris", "Madrid", "Amsterdam"]
@@ -38,6 +39,9 @@ def load_ecomove_data():
             "Date": d,
             "City": c,
             "Transport_Mode": m,
+            "Route_Type": (
+                "Urban Core" if m in ["Metro", "Tram"] else "Suburban/Perimeter"
+            ),
             "Passengers": np.random.randint(50, 400),
             "Trips": np.random.randint(5, 40),
             "Delay_Minutes": max(0, np.random.normal(12, 8)),
@@ -45,6 +49,7 @@ def load_ecomove_data():
             "Ticket_Revenue": np.random.randint(800, 3500),
             "Operating_Cost": np.random.randint(700, 3000),
             "CO2_saved": np.random.randint(150, 900),
+            "Energy_consumption": np.random.randint(400, 1800),
             "Customer_Rating": round(np.random.uniform(3.2, 5.0), 1),
             "Accessibility_complaints": np.random.randint(0, 8),
         })
@@ -59,7 +64,7 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "3. 🐼 Pandas & 📈 Plotly Roles",
     "4. 🔄 Complete Workflow & JSON Wire",
     "5. 🏛️ Dash vs St vs Bokeh vs Panel (Deep Dive)",
-    "6. 🎯 EcoMove Interactive Challenge & Full Board",
+    "6. 🎯 EcoMove Challenge, Live Board & Justifications",
     "📝 7. 15-Question Master Quiz",
 ])
 
@@ -161,24 +166,23 @@ with tab5:
 | **Reactivity Model** | Explicit `@app.callback` matching component IDs | Whole script reruns top-to-bottom | `slider.on_change('value', fn)` | Functional binding `pn.bind(func, widget)` |
 """)
 
-# --- TAB 6: ECOMOVE INTERACTIVE CHALLENGE & FULL BOARD UNLOCK ---
+# --- TAB 6: ECOMOVE INTERACTIVE CHALLENGE, BOARD & JUSTIFICATIONS ---
 with tab6:
-  st.header("🎯 EcoMove Assessment Interactive Challenge ([5442] Brief)")
+  st.header(
+      "🎯 EcoMove Assessment Challenge, Live Dashboard & Managerial Justifications"
+  )
   st.markdown(
       "Target Audience: **Senior Managers at EcoMove City Transport"
       " Authority** [cite: 3]."
-  )
-  st.info(
-      "📌 **Step 1**: Select your 6 non-redundant visual types and core KPIs"
-      " *before* unlocking the complete solution dashboard."
   )
 
   if "unlocked_ecomove" not in st.session_state:
     st.session_state["unlocked_ecomove"] = False
 
   with st.form("challenge_step1"):
+    st.subheader("Step 1: Test Your Planning Logic")
     sel_v = st.multiselect(
-        "Select 6 non-redundant chart types:",
+        "Select your 6 non-redundant chart types:",
         [
             "Time-series trend (demand/volume over time)",
             "Comparison chart (by city, country, or mode revenue/volume)",
@@ -206,8 +210,8 @@ with tab6:
 
   if st.session_state["unlocked_ecomove"]:
     st.success(
-        "🔓 **Blueprint Unlocked!** Review your selection against the complete"
-        " EcoMove interactive operational dashboard below:"
+        "🔓 **Blueprint Unlocked!** Complete interactive dashboard + Academic"
+        " Managerial Justification Framework:"
     )
 
     # Interactive Global Filter matching Requirement 6
@@ -223,11 +227,9 @@ with tab6:
 
     # Top-line KPI summary row
     c1, c2, c3, c4, c5 = st.columns(5)
-    net_m = (
-        dff["Ticket_Revenue"].sum() - dff["Operating_Cost"].sum()
-    )
+    net_m = dff["Ticket_Revenue"].sum() - dff["Operating_Cost"].sum()
     c1.metric("Net Margin", f"€{net_m:,.0f}")
-    c2.metric("On-Time %", f"{dff['on_time_percentage'].mean():.1f}%")
+    c2.metric("On-Time %", f"{dff['On_time_percentage'].mean():.1f}%")
     c3.metric("Total CO2 Saved", f"{dff['CO2_saved'].sum():,.0f} kg")
     c4.metric(
         "Access Complaints", f"{dff['Accessibility_complaints'].sum():.0f}"
@@ -236,7 +238,7 @@ with tab6:
 
     st.divider()
 
-    # 6 Visualisations rendered cleanly
+    st.subheader("📊 Live 6-Visualisation Composite Dashboard")
     g1, g2 = st.columns(2)
     with g1:
       ts = dff.groupby("Date")["Passengers"].sum().reset_index()
@@ -303,6 +305,21 @@ with tab6:
           ),
           use_container_width=True,
       )
+
+    st.divider()
+    st.subheader(
+        "📝 Managerial Justification & Design Rationale Guide (Task 2 Ready)"
+    )
+    st.markdown("""
+| Visual / Component | Selected Encapsulation | Decision Pillar Addressed | Managerial Action Justification |
+| :--- | :--- | :--- | :--- |
+| **1. Time-Series Line** | Aggregated daily `Passengers` sum over `Date` with OLS trendline | Route Planning & Demand Forecasting | Exposes macro growth vs contraction curves; identifies whether seasonal shifts require fleet capacity expansion. |
+| **2. Mode Comparison Bar** | Categorical aggregation of `Ticket_Revenue` by `Transport_Mode` | Investment Priorities | Highlights commercial viability; flags revenue-negative shared modes that require structural public operating subsidies. |
+| **3. Relationship Scatter** | Multivariate mapping (`Delay_Minutes` vs `Customer_Rating`, color=mode) | Service Reliability & UX | Proves non-linear satisfaction decay when schedule delays exceed 15-minute thresholds on commuter corridors. |
+| **4. Distribution Boxplot** | Quartile/interquartile spread of `Delay_Minutes` across modes | Service Reliability SLA Audit | Identifies tail-risk schedule unreliability (e.g., high variance on bus transit vs tight clustering on metro tracks). |
+| **5. Performance Indicator Bar** | Mean revenue footprint broken down by `City` asset | Investment / Asset Allocation | Guides multi-city capital budgeting; reallocates CapEx from underperforming urban asset footprints to high-density hubs. |
+| **6. Composite / Multi-View Filter** | Cross-filtering global city selector driving frequency distribution | Accessibility & Operational Equity | Enables cross-jurisdictional triage for low-performing transit links flagged with accessibility complaints. |
+""")
 
 # --- TAB 7: 15-QUESTION QUIZ ---
 with tab7:
