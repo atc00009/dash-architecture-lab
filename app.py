@@ -1,280 +1,258 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Super Simple Dash Flow & 15-Q Quiz", page_icon="⚡", layout="wide"
+    page_title="Dash Master Flow & Lab", page_icon="⚡", layout="wide"
 )
 
-st.title("⚡ Dash Made Super Simple: Under the Hood & Interactive Lab")
+st.title("⚡ Dash Complete Architecture & Flow Learning Lab")
 st.markdown(
-    "**Goal:** Understand how Dash talks, where hidden JavaScript lives, what Pandas/Plotly do, and test your knowledge with 15 questions!"
+    "Super simple guide connecting HTML vs. Dash, UI components, hidden"
+    " React/JS, JSON wire carrier, Pandas/Plotly, complete click workflow, and"
+    " a 15-question mastery quiz."
 )
 
-# Navigation Tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "1. 📦 The Hidden Magic",
-    "2. 🧱 Core Dash Code",
+    "1. 🧩 HTML vs Dash & UI Components",
+    "2. 📦 Hidden JS & Server (`app.run`)",
     "3. 🐼 Pandas & 📈 Plotly Roles",
-    "4. 🔄 The Click & JSON Loop",
-    "📝 5. Master Quiz (15 Qs)",
+    "4. 🔄 Complete Workflow & JSON Wire",
+    "📝 5. 15-Question Master Quiz",
 ])
 
-# --- TAB 1: HIDDEN MAGIC ---
+# --- TAB 1: HTML vs DASH & COMPONENTS ---
 with tab1:
-  st.header("Step 1: What happens when you do pip install dash?")
-  st.write(
-      "When you run `pip install dash`, Python downloads a big box of tools."
-      " **Hidden inside that box** are pre-written JavaScript and React files."
-  )
+  st.header("1. HTML vs. Dash Comparison")
+  st.markdown("""
+| Feature / Behavior | HTML | Dash |
+| :--- | :--- | :--- |
+| **Primary Purpose** | Creates webpage structure | Creates interactive data applications |
+| **UI Elements** | Headings, text, boxes, tables | Graphs, dropdowns, sliders, filters |
+| **Data Analysis** | Doesn't analyse data | Can use Python to analyse data |
+| **Python Execution** | Doesn't run Python | Connects the browser to Python |
+| **Interactivity** | Interaction needs JavaScript | Dash provides much of the interaction for you |
+""")
 
-  col1, col2 = st.columns(2)
-  with col1:
-    st.info("🧠 **The Big Secret**\nYou **do not** write HTML, CSS, or"
-            " JavaScript.\nDash already installed the browser-side JavaScript"
-            " engine *for* you inside Python's storage folder.")
-  with col2:
-    st.code(
-        """
-Python hard drive folder after pip install dash:
-site-packages/
- └── dash/
-      ├── render.js  (Hidden React/JS engine)
-      └── dcc/
-           └── dropdown.js (Hidden dropdown JS)
-""",
-        language="text",
-    )
-
-# --- TAB 2: CORE DASH CODE ---
-with tab2:
-  st.header("Step 2: The Main Steps to Create a Dash App")
-  st.write(
-      "Here is the tiny core skeleton of a Dash app using `dcc.Graph`, layouts,"
-      " and callbacks:"
-  )
-
+  st.divider()
+  st.subheader("2. `dcc.Dropdown` — Very Simple")
   st.code(
       """
-from dash import Dash, html, dcc, Input, Output
-import plotly.express as px
-import pandas as pd
-
-# 1. Create app & start server
-app = Dash(__name__)
-
-# 2. Build layout (HTML & dcc.Graph slots)
-app.layout = html.Div([
-    html.H1("My Stock App"),
-    dcc.Dropdown(["AAPL", "MSFT"], "AAPL", id="stock-box"),
-    dcc.Graph(id="my-chart") # Empty visual container slot
-])
-
-# 3. Connect user action to Python calculation via Callback
-@app.callback(
-    Output("my-chart", "figure"),
-    Input("stock-box", "value")
+dcc.Dropdown(
+    id="stock",
+    options=[
+        {"label": "Apple", "value": "AAPL"},
+        {"label": "Microsoft", "value": "MSFT"}
+    ],
+    value="AAPL"
 )
-def update_chart(chosen_stock):
-    # Python does work here...
-    pass
+""",
+      language="python",
+  )
+  st.text("Visual Preview:\nSelect a stock ▼\n────────────────\nApple\nMicrosoft")
+  st.markdown(
+      "- **`dcc`** → Dash Core Components\n- **`Dropdown`** → creates a dropdown"
+      " menu\n- **`id=\"stock\"`** → gives the dropdown an ID so Dash can track"
+      " it\n- **`options`** → choices available to the user"
+  )
 
-# 4. Run the web server
+  st.divider()
+  st.subheader("3. `dcc.Graph` — Very Simple")
+  st.code('dcc.Graph(id="chart")', language="python")
+  st.info(
+      '💡 **Meaning:** *"Dash, please create a space on my webpage where I can'
+      ' display an interactive graph."*\n\nFlow: `dcc.Graph()` → Dash creates'
+      ' component slot → Plotly provides math figure → Browser JavaScript'
+      ' displays pixels.'
+  )
+
+# --- TAB 2: HIDDEN JS & SERVER ---
+with tab2:
+  st.header("Where is JavaScript / React? (Hidden Background)")
+  st.write(
+      "When you run `pip install dash`, Plotly downloads pre-built"
+      " React/JavaScript bundles into Python's `site-packages/dash`. You never"
+      " write manual `.js` files."
+  )
+
+  st.subheader("Server & `localhost:8050` Snippet")
+  st.code(
+      """
+from dash import Dash
+app = Dash(__name__)
+# ... layout & callbacks ...
 if __name__ == "__main__":
     app.run(debug=True, port=8050)
 """,
       language="python",
   )
+  st.markdown(
+      "- **`app = Dash(__name__)`** creates the app framework.\n- **`app.run()`"
+      "** starts a local Python web server (`http://127.0.0.1:8050`).\n-"
+      " **Server meaning:** A running Python process waiting for HTTP requests"
+      " from your browser."
+  )
 
-# --- TAB 3: PANDAS & PLOTLY ---
+# --- TAB 3: PANDAS & PLOTLY ROLES ---
 with tab3:
-  st.header("Step 3: What do Pandas and Plotly do inside Python?")
-  st.write("When a user picks a stock, Python runs your callback function.")
+  st.header("What Pandas and Plotly Do Inside Python")
 
-  colA, colB = st.columns(2)
-  with colA:
+  c1, c2 = st.columns(2)
+  with c1:
     st.subheader("🐼 Pandas Role")
-    st.write(
-        "- Fetches or reads table rows/columns (Dates, Prices).\n- Cleans"
-        " empty rows, renames columns, or filters by date.\n- Output:"
-        " **A clean table (DataFrame)**."
-    )
-  with colB, colb if 'colb' in locals() else st.container():
-    st.subheader("📈 Plotly (`px`) Role")
-    st.write(
-        "- Takes the clean Pandas table.\n- Computes math coordinates:"
-        " *Where do lines go? What color is the axis? What is the title?*\n-"
-        " Output: **A Plotly Figure object**."
-    )
-
-# --- TAB 4: THE CLICK & JSON LOOP ---
-with tab4:
-  st.header("Step 4: The Complete Roundtrip (Click to Screen)")
-  st.markdown("""
-1. **User clicks `MSFT`** in the dropdown on the webpage.
-2. **Hidden JavaScript (in browser)** catches the click. JS says: *"User picked MSFT!"*
-3. **JSON carrier packet** wraps info: `{"stock": "MSFT"}` and sends it over local network/port to Python server.
-4. **Python Server Callback wakes up**, runs Pandas + Plotly, makes a new chart figure object.
-5. **Python packs figure to JSON**, sends it *back* to browser over the network wire.
-6. **Hidden JavaScript (in browser)** receives the JSON, reads the coordinates, and **draws/paints the graph pixels** inside `dcc.Graph`.
-7. **No page refresh!** Only the graph updates smoothly.
+    st.markdown("""
+- Reads tabular data (dates, open/close prices).
+- Cleans, filters, reindexes, flattens multi-index columns.
+- **Output:** Clean data rows (DataFrame).
 """)
+  with c2:
+    st.subheader("📈 Plotly (`px`) Role")
+    st.markdown("""
+- Takes clean Pandas data table.
+- Calculates visual geometry (line path, axis ranges, marker colors, title).
+- **Output:** Plotly Figure object (`fig`).
+""")
+
+  st.code(
+      """
+# Inside a callback snippet:
+df = yf.download(selected_stock) # Pandas downloads/cleans
+fig = px.line(df, x="Date", y="Close") # Plotly computes chart figure
+return fig
+""",
+      language="python",
+  )
+
+# --- TAB 4: COMPLETE WORKFLOW & JSON WIRE ---
+with tab4:
+  st.header("The Complete Loop: User Click → JSON → Python → JS Display")
+  st.markdown("""
+1. **User Action:** User clicks `MSFT` in `dcc.Dropdown`.
+2. **Hidden JS Event:** Browser's built-in Dash React/JS catches the click.
+3. **JSON Carrier Packet:** Browser packages payload `{"stock": "MSFT"}` as light text JSON over HTTP/port to Python server.
+4. **Callback Trigger:** `@app.callback(Output("chart", "figure"), Input("stock", "value"))` runs Python function `update_chart("MSFT")`.
+5. **Python Processing:** Pandas cleans table → Plotly creates `fig`.
+6. **Return JSON:** Python serializes `fig` to JSON and sends back over network wire.
+7. **JS Display:** Browser's hidden React/Plotly-JS engine receives JSON and repaints graph pixels inside `dcc.Graph(id="chart")`.
+8. **No Page Refresh:** Whole page stays put; only the target component updates!
+""")
+
+  st.code(
+      """
+@app.callback(Output("chart", "figure"), Input("stock", "value"))
+def update_chart(stock):
+    # Python computes figure object...
+    return fig # Serialized to JSON wire payload -> browser JS displays
+""",
+      language="python",
+  )
 
 # --- TAB 5: 15-QUESTION QUIZ ---
 with tab5:
-  st.header("📝 15-Question Master Knowledge Check")
-  st.write(
-      "Test your understanding of Dash hidden mechanics, JSON, Pandas, Plotly,"
-      " and code structure."
-  )
-
-  with st.form("master_quiz_form"):
+  st.header("📝 15-Question Mastery Check")
+  with st.form("master_15q"):
     q1 = st.radio(
-        "1. Where does JavaScript live when using Dash?",
+        "1. Where does JavaScript live in Dash?",
         [
-            "You write it in a separate script.js file",
-            "Pre-packaged inside the Python dash library via pip install",
-            "Generated live by your web browser operating system",
+            "Written manually in script.js",
+            "Pre-packaged inside Python's dash package via pip install",
+            "Compiled by browser OS",
         ],
     )
-
     q2 = st.radio(
         "2. What does pip install dash download?",
         [
-            "Only plain Python math functions",
-            "Dash framework plus hidden React/JavaScript frontend bundles",
-            "A compiled .exe desktop application",
+            "Only math equations",
+            "Dash framework + hidden React/JS frontend bundles",
+            "An .exe desktop file",
         ],
     )
-
     q3 = st.radio(
         "3. What does app = Dash(__name__) do?",
-        [
-            "Deletes old cache files",
-            "Initializes the Dash app application core",
-            "Opens Microsoft Edge browser automatically",
-        ],
+        ["Deletes cache", "Initializes Dash app application core", "Opens Edge"],
     )
-
     q4 = st.radio(
-        "4. What does app.run(debug=True, port=8050) do?",
+        "4. What does app.run(port=8050) do?",
         [
-            "Starts a local Python web server waiting for browser requests",
-            "Compiles Python into C++ machine code",
-            "Uploads your code to Google Drive",
+            "Starts local Python web server waiting for browser requests",
+            "Compiles C++",
+            "Syncs Google Drive",
         ],
     )
-
     q5 = st.radio(
-        "5. What is dcc.Graph(id='my-chart') in the layout?",
+        "5. What is dcc.Graph(id='chart')?",
         [
-            "An image file stored on your desktop",
-            "An empty container slot in the web page waiting for chart JSON",
-            "A database connection string",
+            "Static PNG file",
+            "Empty container slot in webpage waiting for chart JSON",
+            "Database table",
         ],
     )
-
     q6 = st.radio(
-        "6. Does Python draw the graph pixels on your computer screen?",
+        "6. Does Python draw graph pixels on screen?",
         [
-            "Yes, Python GPU draws the SVG pixels directly",
+            "Yes via GPU",
             "No, browser JavaScript/Plotly-JS reads JSON and paints pixels",
-            "Yes, via matplotlib GUI windows",
+            "Yes matplotlib GUI",
         ],
     )
-
     q7 = st.radio(
-        "7. What carries the message 'user picked MSFT' from browser to Python?",
-        [
-            "Raw Python pickle binary code",
-            "Lightweight JSON text format message",
-            "A USB serial cable signal",
-        ],
+        "7. What carries 'user picked MSFT' to Python?",
+        ["Pickle binary", "Lightweight JSON text format message", "USB cable"],
     )
-
     q8 = st.radio(
-        "8. What is Pandas' main job inside a callback?",
-        [
-            "Animate CSS page transitions",
-            "Clean, filter, and reshape table/stock data rows",
-            "Render HTML <h1> headings",
-        ],
+        "8. What is Pandas' main job in a callback?",
+        ["Animate CSS", "Clean, filter, and reshape table/stock rows", "Render H1"],
     )
-
     q9 = st.radio(
-        "9. What is Plotly's main job inside a callback?",
-        [
-            "Turn table numbers into chart coordinate/figure objects",
-            "Connect to Wi-Fi routers",
-            "Parse JSON web tokens",
-        ],
+        "9. What is Plotly's main job in a callback?",
+        ["Turn table numbers into chart coordinate/figure objects", "Connect Wi-Fi", "Parse JWT"],
     )
-
     q10 = st.radio(
-        "10. What format does Python return to the browser for the graph figure?",
-        ["Raw python object memory pointer", "JSON text format", "An MP4 video file"],
+        "10. What format does Python return to browser for the graph figure?",
+        ["Memory pointer", "JSON text format", "MP4 video"],
     )
-
     q11 = st.radio(
         "11. Does the whole web page refresh when a callback updates a graph?",
         [
-            "Yes, browser reloads full HTML like traditional PHP/Flask apps",
-            "No, only the target component updates via async JSON loop",
-            "Yes, screen flashes white every time",
+            "Yes full reload like PHP",
+            "No, only target component updates via async JSON loop",
+            "Yes white flash",
         ],
     )
-
     q12 = st.radio(
         "12. Where does @app.callback Python code execute?",
-        [
-            "Inside Google Chrome V8 engine",
-            "On the Python server / backend computer",
-            "Inside the Wi-Fi router firmware",
-        ],
+        ["Chrome V8 engine", "On the Python server / backend computer", "Wi-Fi router"],
     )
-
     q13 = st.radio(
-        "13. Why don't you see JavaScript files in your project directory?",
-        [
-            "Because Dash hides/packages JS inside the Python site-packages",
-            "Because browsers don't support JavaScript anymore",
-            "Because you forgot to write import js",
-        ],
+        "13. Why aren't JS files visible in your project folder?",
+        ["Dash packages JS inside Python site-packages", "Browsers block JS", "Forgot import js"],
     )
-
     q14 = st.radio(
-        "14. What matches an Output('my-chart', 'figure') to the UI?",
-        [
-            "The file creation timestamp",
-            "The component id='my-chart' defined in app.layout",
-            "The computer login username",
-        ],
+        "14. What matches Output('chart', 'figure') to UI?",
+        ["Timestamp", "Component id='chart' defined in app.layout", "Username"],
     )
-
     q15 = st.radio(
         "15. What format is the network wire payload between browser and server?",
-        ["Text-based JSON", "Magnetic tape audio", "Bluetooth radio frequency"],
+        ["Text-based JSON", "Magnetic audio", "Radio frequency"],
     )
 
-    submitted = st.form_submit_button("Submit Answers & Check Score")
-
+    submitted = st.form_submit_button("Submit 15-Question Quiz")
     if submitted:
-      score = 0
-      answers = [
+      ans_key = [
           (
               q1,
-              "Pre-packaged inside the Python dash library via pip install",
+              "Pre-packaged inside Python's dash package via pip install",
           ),
           (
               q2,
-              "Dash framework plus hidden React/JavaScript frontend bundles",
+              "Dash framework + hidden React/JS frontend bundles",
           ),
-          (q3, "Initializes the Dash app application core"),
+          (q3, "Initializes Dash app application core"),
           (
               q4,
-              "Starts a local Python web server waiting for browser requests",
+              "Starts local Python web server waiting for browser requests",
           ),
           (
               q5,
-              "An empty container slot in the web page waiting for chart JSON",
+              "Empty container slot in webpage waiting for chart JSON",
           ),
           (
               q6,
@@ -284,7 +262,7 @@ with tab5:
               ),
           ),
           (q7, "Lightweight JSON text format message"),
-          (q8, "Clean, filter, and reshape table/stock data rows"),
+          (q8, "Clean, filter, and reshape table/stock rows"),
           (
               q9,
               "Turn table numbers into chart coordinate/figure objects",
@@ -292,31 +270,22 @@ with tab5:
           (q10, "JSON text format"),
           (
               q11,
-              "No, only the target component updates via async JSON loop",
+              "No, only target component updates via async JSON loop",
           ),
           (q12, "On the Python server / backend computer"),
           (
               q13,
-              (
-                  "Because Dash hides/packages JS inside the Python"
-                  " site-packages"
-              ),
+              "Dash packages JS inside Python site-packages",
           ),
-          (q14, "The component id='my-chart' defined in app.layout"),
+          (q14, "Component id='chart' defined in app.layout"),
           (q15, "Text-based JSON"),
       ]
-
-      for i, (user_ans, correct_ans) in enumerate(answers, 1):
-        if user_ans == correct_ans:
-          score += 1
-          st.success(f"Q{i}: ✅ Correct!")
+      score = sum(1 for u, c in ans_key if u == c)
+      st.markdown(f"### Score: **{score} / 15**")
+      for i, (u, c) in enumerate(ans_key, 1):
+        if u == c:
+          st.success(f"Q{i}: ✅ Correct")
         else:
-          st.error(
-              f"Q{i}: ❌ Your answer: '{user_ans}' | **Correct answer:**"
-              f" '{correct_ans}'"
-          )
-
-      st.markdown(f"### Final Score: **{score} / 15**")
+          st.error(f"Q{i}: ❌ Selected '{u}' | Expected '{c}'")
       if score == 15:
         st.balloons()
-        st.success("🏆 Mastered! You know the complete Dash architecture flow!")
